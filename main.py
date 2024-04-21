@@ -291,7 +291,32 @@ async def onerror(interaction : discord.Interaction, error : app_commands.AppCom
         await interaction.response.send_message("You're not a support team member!", ephemeral=True)
     elif isinstance(error, app_commands.MissingRole):
         await interaction.response.send_message("You're not a support team member!", ephemeral=True)
-    
+
+
+
+class announce_embed(ui.Modal, title = 'Announcement embed'):
+
+    heading = ui.TextInput(label = 'Title', style = discord.TextStyle.short, required = True, placeholder = "", min_length=1, max_length=256)
+    body = ui.TextInput(label = 'Main Body', style = discord.TextStyle.paragraph, required = True, placeholder = "", min_length=1, max_length=4000)
+    image = ui.TextInput(label = 'Main Image', style = discord.TextStyle.short, required = False, placeholder = "Large image at bottom")
+    thumbnail = ui.TextInput(label = 'Thumbnail', style = discord.TextStyle.short, required = False, placeholder = "Small image in TR corner")
+    # colour = ui.TextInput(label = 'Colour Hex', style = discord.TextStyle.short, required = True, default="38b6ff")
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(title=self.heading.value, description=self.body.value, colour=maincolour)
+        try:
+            embed.set_image(url=self.image.value)
+            embed.set_thumbnail(url=self.thumbnail.value)
+            await interaction.channel.send(embed=embed)
+        except:
+            embed.set_image(url=None)
+            embed.set_thumbnail(url=None)
+            await interaction.channel.send(embed=embed)
+
+@tree.command(guild = discord.Object(id=guild_id), name = 'announce', description='Send an announcement')
+@app_commands.checks.has_permissions(administrator=True)
+async def announce(interaction: discord.Interaction):
+    await interaction.response.send_modal(announce_embed())
     
 
 
@@ -316,7 +341,7 @@ async def onerror(interaction : discord.Interaction, error : app_commands.AppCom
 
 @aclient.event
 async def on_message(message : discord.Message):
-    if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id != 570715420554952704:
+    if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats:
         cont = message.content.lower()
         if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
             await message.delete()
