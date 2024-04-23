@@ -398,7 +398,7 @@ async def on_message(message : discord.Message):
 
         #final thing
         if rep is not None:
-            rep.edit(content=rep.content + "\n\nFor a better user experiece, you may prefer [**our website**](https://duobot.com/p/deepforce)")
+            await rep.edit(content=rep.content + "\n\nFor a better user experiece, you may prefer [**our website**](https://duobot.com/p/deepforce)")
         # first time function
         if message.channel.category.id == 570721296183197697 and not hasRole(message.author, staffroleid):
             with open('supids.txt', 'r+') as f:
