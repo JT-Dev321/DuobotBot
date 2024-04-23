@@ -357,11 +357,11 @@ async def on_message(message : discord.Message):
             rep = None
             if cont[0] == '!':
                 rep = await message.reply("You should use these commands in DMs with the bot's on steam, not in the discord server.")
-            if ("bot" in cont and "add" in cont and "me" in cont) or ("friend request" in cont):
+            elif ("bot" in cont and "add" in cont and "me" in cont) or ("friend request" in cont):
                 rep = await message.reply(f"Please open a {ticketchannelmention} for us to manually add you on one of the bots, within the ticket provide:\n\n**1.** Your profile link\n**2.** The bot's profile link")
-            if "specific" in cont and "set" in cont:
+            elif "specific" in cont and "set" in cont:
                 rep = await message.reply(f"We cannot sell you specific sets from our bots.")
-            if "tradable" in cont or "tradeable" in cont:
+            elif "tradable" in cont or "tradeable" in cont:
                 rep = await message.reply(
                 f"""
                 {message.author.mention} 
@@ -379,7 +379,7 @@ async def on_message(message : discord.Message):
                 **- https://marketplace.tf/items/tf2/5021;6**
                 **- https://cs.deals/market/tf2/Tool/?name=mann%20co.%20supply%20crate%20key&sort=price**
                 """)
-            if "an error occurred" in cont:
+            elif "an error occurred" in cont:
                 rep = await message.reply(f"""
                 {message.author.mention}
 
@@ -388,7 +388,7 @@ async def on_message(message : discord.Message):
                 PT: 
                 Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
                 """)
-            if "There was an error loading your profile as it is private" in cont:
+            elif "There was an error loading your profile as it is private" in cont:
                 rep = await message.reply(f"""
                 {message.author.mention}
                 
