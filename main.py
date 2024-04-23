@@ -354,6 +354,7 @@ async def on_message(message : discord.Message):
                     await message.reply(f"{autoSupportDictionary[error]}")
         """
         if message.channel.category.id != 657238193896423424:
+            rep = None
             if cont[0] == '!':
                 rep = await message.reply("You should use these commands in DMs with the bot's on steam, not in the discord server.")
             if ("bot" in cont and "add" in cont and "me" in cont) or ("friend request" in cont):
@@ -387,6 +388,17 @@ async def on_message(message : discord.Message):
                 PT: 
                 Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
                 """)
+            if "There was an error loading your profile as it is private" in cont:
+                rep = await message.reply(f"""
+                {message.author.mention}
+                
+                This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
+                """)
+            
+
+            #end
+            if rep is not None:
+                rep.edit(content=rep.content + "\n\nFor a better user experiece, you may prefer [**our website**](https://duobot.com/p/deepforce)")
         # first time function
         if message.channel.category.id == 570721296183197697 and not hasRole(message.author, staffroleid):
             with open('supids.txt', 'r+') as f:

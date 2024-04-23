@@ -9,7 +9,7 @@ auto_response_cats = [657238193896423424, 570721296183197697, 570718686990827530
 
 staffroleid = 1173264473134477353
 
-ticketchannelmention = "<#760515749767807026>"
+ticketchannelmention = "<#1173302179310874784>"
 faqchannelmention = "<#863918636778651688>"
 autosupchannelmention = "<#1105157686057779300>"
 botguidemention = "<#1165717673322221649>"
@@ -104,7 +104,7 @@ Please do not expect a refund if there has not been a technical fault with one o
 "I got less sets/a lower level than expected":
 f"""
 There are multiples reasons that this may occur:
-    - There was a large gap between you checking prices and running the buy command (The prices changed in that gap)
+    - There was a large gap in time between you checking prices and running the buy command (The prices changed in that time)
 - You purchased cards while having craftable sets in your inventory
 - Other reasons
     
