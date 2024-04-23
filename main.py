@@ -395,10 +395,9 @@ async def on_message(message : discord.Message):
             This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
             """)
         
-
         #final thing
         if rep is not None:
-            await rep.edit(content=rep.content + "\n\nFor a better user experiece, you may prefer [**our website**](https://duobot.com/p/deepforce)")
+            await rep.edit(content=rep.content + "\n\n### For an improved user experiece, and a wider range of payment methods, you may prefer using [**our website**](https://duobot.com/p/deepforce)")
         # first time function
         if message.channel.category.id == 570721296183197697 and not hasRole(message.author, staffroleid):
             with open('supids.txt', 'r+') as f:
