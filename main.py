@@ -396,7 +396,7 @@ async def on_message(message : discord.Message):
                 """)
             
 
-            #end
+            #final thing
             if rep is not None:
                 rep.edit(content=rep.content + "\n\nFor a better user experiece, you may prefer [**our website**](https://duobot.com/p/deepforce)")
         # first time function
