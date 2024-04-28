@@ -307,7 +307,7 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
     # colour = ui.TextInput(label = 'Colour Hex', style = discord.TextStyle.short, required = True, default="38b6ff")
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        embed = discord.Embed(title=self.heading.value, description=self.body.value, url="duobot.com", colour=maincolour)
+        embed = discord.Embed(title=self.heading.value, description=self.body.value, url="https://duobot.com", colour=maincolour)
         embed.set_footer(text = "Visit our website at **duobot.com**!")
         try:
             embed.set_image(url=self.image.value)
