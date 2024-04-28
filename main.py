@@ -307,8 +307,12 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
     # colour = ui.TextInput(label = 'Colour Hex', style = discord.TextStyle.short, required = True, default="38b6ff")
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
-        embed = discord.Embed(title=self.heading.value, description=self.body.value, url="https://duobot.com", colour=maincolour, timestamp=datetime.datetime.now())
-        embed.set_footer(text = "Visit our website at https://duobot.com", icon_url=interaction.user.avatar.url)
+        if interaction.channel.id == 530754564954259456:
+            embed = discord.Embed(title=self.heading.value, description=self.body.value, url="https://duobot.com", colour=maincolour, timestamp=datetime.datetime.now())
+            embed.set_footer(text = "Visit our website at https://duobot.com", icon_url=interaction.user.avatar.url)
+        else:
+            embed = discord.Embed(title=self.heading.value, description=self.body.value, colour=maincolour)
+            # embed.set_footer(text = "Visit our website at https://duobot.com")
         try:
             embed.set_image(url=self.image.value)
             embed.set_thumbnail(url=self.thumbnail.value)
