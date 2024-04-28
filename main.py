@@ -145,7 +145,7 @@ class ticketpromptview(discord.ui.View):
             logchannel = get(interaction.guild.channels, id=ticketlogchannelid)
             logembed = discord.Embed(
             title = 'Ticket opened',
-            timestamp=datetime.datetime.utcnow(),
+            timestamp=datetime.datetime.now(),
             colour=maincolour
             )
             logembed.add_field(name = 'Opener', value = f'**{interaction.user.mention}** ({interaction.user.id})', inline = True)
@@ -155,7 +155,7 @@ class ticketpromptview(discord.ui.View):
             inticketembed = discord.Embed(
                 title = "Welcome to your ticket",
                 description = f"{interaction.user.mention} Welcome to your ticket - Please describe your issue below.\n\nCopy and pasting error messages & showing screenshots of your chat with the bot is really useful!\n\nPlease also provide your **steam profile link**, as in most cases it is useful to us.",
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=datetime.datetime.now(),
                 colour = maincolour
             )
             await channel.send(embed=inticketembed, content=f"{interaction.user.mention}", view=ticketmenuview())
@@ -177,7 +177,7 @@ class ticketclosedview(discord.ui.View):
         logchannel = get(interaction.guild.channels, id=ticketlogchannelid)
         logembed = discord.Embed(
         title = 'Ticket Reopened',
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.datetime.now(),
         colour=maincolour
         )
         logembed.add_field(name = 'Reopener', value = f'**{interaction.user}** ({interaction.user.id})', inline = True)
@@ -197,7 +197,7 @@ class ticketmenuview(discord.ui.View):
                 logchannel = get(interaction.guild.channels, id=ticketlogchannelid)
                 logembed = discord.Embed(
                 title = 'Ticket Closed & Archived',
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=datetime.datetime.now(),
                 colour=redcolour
                 )
                 logembed.add_field(name = 'Closer', value = f'**{interaction.user}** ({interaction.user.id})', inline = True)
@@ -215,7 +215,7 @@ class ticketmenuview(discord.ui.View):
                 logchannel = get(interaction.guild.channels, id=ticketlogchannelid)
                 logembed = discord.Embed(
                 title = 'Ticket Closed & Deleted',
-                timestamp=datetime.datetime.utcnow(),
+                timestamp=datetime.datetime.now(),
                 colour=redcolour
                 )
                 logembed.add_field(name = 'Closer', value = f'**{interaction.user}** ({interaction.user.id})', inline = True)
@@ -254,7 +254,7 @@ async def ticketadd(interaction: discord.Interaction, member : discord.Member):
         await interaction.response.send_message("Success!", ephemeral=True)
         logembed = discord.Embed(
         title = 'Ticket Member Added',
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.datetime.now(),
         colour=greencolour
         )
         logembed.add_field(name = 'Staff', value = f'**{interaction.user}** ({interaction.user.id})', inline = True)
@@ -273,7 +273,7 @@ async def ticketremove(interaction: discord.Interaction, member : discord.Member
         await interaction.response.send_message("Success!", ephemeral=True)
         logembed = discord.Embed(
         title = 'Ticket Member Removed',
-        timestamp=datetime.datetime.utcnow(),
+        timestamp=datetime.datetime.now(),
         colour=redcolour
         )
         logembed.add_field(name = 'Staff', value = f'**{interaction.user}** ({interaction.user.id})', inline = True)
