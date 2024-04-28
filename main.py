@@ -308,7 +308,7 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
 
     async def on_submit(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(title=self.heading.value, description=self.body.value, url="https://duobot.com", colour=maincolour, timestamp=datetime.datetime.now())
-        embed.set_author(name = interaction.user.name, url=interaction.user.display_icon.url)
+        embed.set_author(name = interaction.user.name, url=interaction.user.avatar.url)
         embed.set_footer(text = "Visit our website at https://duobot.com")
         try:
             embed.set_image(url=self.image.value)
