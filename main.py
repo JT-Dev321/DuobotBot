@@ -296,6 +296,10 @@ async def onerror(interaction : discord.Interaction, error : app_commands.AppCom
 
 class announce_embed(ui.Modal, title = 'Announcement embed'):
 
+    def __init__(self, mention : bool):
+            self.mention = mention
+            super().__init__()
+
     heading = ui.TextInput(label = 'Title', style = discord.TextStyle.short, required = True, placeholder = "", min_length=1, max_length=256)
     body = ui.TextInput(label = 'Main Body', style = discord.TextStyle.paragraph, required = True, placeholder = "", min_length=1, max_length=4000)
     image = ui.TextInput(label = 'Main Image', style = discord.TextStyle.short, required = False, placeholder = "Large image at bottom")
@@ -307,16 +311,18 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
         try:
             embed.set_image(url=self.image.value)
             embed.set_thumbnail(url=self.thumbnail.value)
-            await interaction.channel.send(embed=embed)
+            if self.mention:
+                await interaction.channel.send(content="@everyone", embed=embed)
+            else:
+                await interaction.channel.send(embed=embed)
+
         except:
-            embed.set_image(url=None)
-            embed.set_thumbnail(url=None)
-            await interaction.channel.send(embed=embed)
+            await interaction.response.send_message("An error has occurred.", ephemeral=True)
 
 @tree.command(guild = discord.Object(id=guild_id), name = 'announce', description='Send an announcement')
 @app_commands.checks.has_permissions(administrator=True)
-async def announce(interaction: discord.Interaction):
-    await interaction.response.send_modal(announce_embed())
+async def announce(interaction: discord.Interaction, mention_everyone : bool = False):
+    await interaction.response.send_modal(announce_embed(mention_everyone))
     
 
 
@@ -410,11 +416,6 @@ async def on_message(message : discord.Message):
                 if not found:
                     f.write(f"{message.author.id},")
                     await message.reply(f"Looks like it's your first time here, welcome.\n\nPlease be sure to check out {faqchannelmention} and {autosupchannelmention}.\nCopying error messages into the support channels can also provide automated support.\n\nPlease feel free to open a ticket in {ticketchannelmention} or mention one of our support team members who you see online with any further questions you have!", delete_after=120)
-
-@tree.command(guild = discord.Object(id=guild_id), name = 'misc2', description='misc2')
-@app_commands.checks.has_permissions(administrator=True)
-async def misccmd2(interaction: discord.Interaction):
-    await interaction.response.send_message(f"Looks like it's your first time here, welcome.\n\nPlease be sure to check out {faqchannelmention} and {autosupchannelmention}.\nCopying error messages into the support channels can also provide automated support.\n\nPlease feel free to open a ticket in {ticketchannelmention} or mention one of our support team members who you see online with any further questions you have!", delete_after=120)
 
 def insert_returns(body):
     if isinstance(body[-1], ast.Expr):
