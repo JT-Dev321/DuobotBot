@@ -407,7 +407,7 @@ async def on_message(message : discord.Message):
             
             This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
             """)
-        elif "crypto"  in cont or "paypal"  in cont or "bitcoin"  in cont or "ethereum" in cont:
+        elif "crypto" in cont or "paypal" in cont or "bitcoin" in cont or "ethereum" in cont:
             rep = await message.reply(f"""
             {message.author.mention}
             
