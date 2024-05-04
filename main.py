@@ -401,12 +401,19 @@ async def on_message(message : discord.Message):
             PT: 
             Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
             """)
-        elif "There was an error loading your profile as it is private" in cont:
+        elif "there was an error loading your profile as it is private" in cont:
             rep = await message.reply(f"""
             {message.author.mention}
             
             This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
             """)
+        elif "crypto" or "paypal" or "bitcoin" or "ethereum" in cont:
+            rep = await message.reply(f"""
+            {message.author.mention}
+            
+            In order to pay via cash, rather than using keys, you must use [**our website**](https://duobot.com/p/deepforce) & deposit into your balance via your desired payment method. 
+            """)
+            
         
         #final thing
         if rep is not None:
