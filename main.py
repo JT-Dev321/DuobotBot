@@ -422,7 +422,11 @@ async def on_message(message : discord.Message):
                         found = True
                 if not found:
                     f.write(f"{message.author.id},")
-                    await message.reply(f"Looks like it's your first time here, welcome.\n\nPlease be sure to check out {faqchannelmention} and {autosupchannelmention}.\nCopying error messages into the support channels can also provide automated support.\n\nPlease feel free to open a ticket in {ticketchannelmention} or mention one of our support team members who you see online with any further questions you have!", delete_after=120)
+                    await message.reply(f"""## Looks like it's your first time here {message.author.mention}, welcome.
+                                        
+                                        Be sure to check out {faqchannelmention} and {autosupchannelmention} for immediate support.
+                                        Please feel free to open a ticket in {ticketchannelmention} with any further questions you have!""",
+                                        delete_after=120)
 
 def insert_returns(body):
     if isinstance(body[-1], ast.Expr):
