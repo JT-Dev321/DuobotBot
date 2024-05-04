@@ -22,7 +22,9 @@ darkorangecolour = 0xDC582A
 maincolour = 0x3A739C
 
 
-
+auto_response_dictionary = {
+    [""]
+}
 
 autoSupportDictionary = {
     "I don't find any tradable TF2 key(s) in your inventory to complete this request." : 

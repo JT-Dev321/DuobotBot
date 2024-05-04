@@ -377,7 +377,6 @@ async def on_message(message : discord.Message):
         elif "tradable" in cont or "tradeable" in cont:
             rep = await message.reply(
             f"""
-            {message.author.mention} 
             Keys may not be tradeable for these reasons:
 
             CS:GO:
@@ -393,24 +392,21 @@ async def on_message(message : discord.Message):
             **- https://cs.deals/market/tf2/Tool/?name=mann%20co.%20supply%20crate%20key&sort=price**
             """)
         elif "an error occurred" in cont:
-            rep = await message.reply(f"""
-            {message.author.mention}
-
+            rep = await message.reply(
+            f"""
             EN: This is a Steam related issue, and there is nothing we can do in order to attempt to solve this issue. We encourage you to stop trying to use the bot for 15-20 minutes and try again after that.
 
             PT: 
             Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
             """)
         elif "there was an error loading your profile as it is private" in cont:
-            rep = await message.reply(f"""
-            {message.author.mention}
-            
+            rep = await message.reply(
+            f"""
             This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
             """)
         elif "crypto" in cont or "paypal" in cont or "bitcoin" in cont or "ethereum" in cont:
-            rep = await message.reply(f"""
-            {message.author.mention}
-            
+            rep = await message.reply(
+            f"""
             In order to pay via cash, rather than using keys, you must use [**our website**](https://duobot.com/p/deepforce) & deposit into your balance via your desired payment method. 
             """)
             
