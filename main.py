@@ -422,7 +422,7 @@ async def on_message(message : discord.Message):
                         found = True
                 if not found:
                     f.write(f"{message.author.id},")
-                    await message.reply(f"""## Looks like it's your first time here {message.author.mention}, welcome.
+                    await message.reply(f"""## Looks like it's your first time here {message.author.mention}, welcome!
                                         
                                         Be sure to check out {faqchannelmention} and {autosupchannelmention} for immediate support.
                                         Please feel free to open a ticket in {ticketchannelmention} with any further questions you have!""",
