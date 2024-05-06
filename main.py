@@ -311,9 +311,6 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
         
         desc = self.body.value
         
-        if "duobot.com" in desc and not "/p/deepforce" in desc:
-            desc = desc.replace("duobot.com", "duobot.com/p/deepforce")
-        
         if self.server_notice:
             embed = discord.Embed(title=self.heading.value, description=desc, url="https://duobot.com/p/deepforce", colour=maincolour, timestamp=datetime.datetime.now())
             embed.set_footer(text = "Visit our website at https://duobot.com/p/deepforce", icon_url=interaction.user.avatar.url)
