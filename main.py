@@ -296,13 +296,14 @@ async def onerror(interaction : discord.Interaction, error : app_commands.AppCom
 
 class announce_embed(ui.Modal, title = 'Announcement embed'):
 
-    def __init__(self, mention : bool, server_notice : bool):
+    def __init__(self, mention : bool, hyperlink_title : bool):
             self.mention = mention
-            self.server_notice = server_notice
+            self.hyperlink_title = hyperlink_title
             super().__init__()
 
     heading = ui.TextInput(label = 'Title', style = discord.TextStyle.short, required = True, placeholder = "", min_length=1, max_length=256)
     body = ui.TextInput(label = 'Main Body', style = discord.TextStyle.paragraph, required = True, placeholder = "", min_length=1, max_length=4000)
+    footer = ui.TextInput(label = 'Footer', style = discord.TextStyle.short, required = True, default="Visit our website at duobot.com", min_length=0, max_length=256)
     image = ui.TextInput(label = 'Main Image', style = discord.TextStyle.short, required = False, placeholder = "Large image at bottom")
     thumbnail = ui.TextInput(label = 'Thumbnail', style = discord.TextStyle.short, required = False, placeholder = "Small image in TR corner")
     # colour = ui.TextInput(label = 'Colour Hex', style = discord.TextStyle.short, required = True, default="38b6ff")
@@ -311,12 +312,13 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
         
         desc = self.body.value
         
-        if self.server_notice:
+        if self.hyperlink_title:
             embed = discord.Embed(title=self.heading.value, description=desc, url="https://duobot.com/p/deepforce", colour=maincolour)
-            embed.set_footer(text = "Visit our website at duobot.com")
+            embed.set_footer(text = self.footer.value)
         else:
             embed = discord.Embed(title=self.heading.value, description=desc, colour=maincolour)
-            # embed.set_footer(text = "Visit our website at https://duobot.com")
+            embed.set_footer(text = self.footer.value)
+            
         try:
             embed.set_image(url=self.image.value)
             embed.set_thumbnail(url=self.thumbnail.value)
@@ -331,8 +333,8 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
 @tree.command(guild = discord.Object(id=guild_id), name = 'announce', description='Send an announcement')
 @app_commands.checks.has_permissions(administrator=True)
 @app_commands.describe(server_notice="Adds extras to the embed, meant for server wide announcements.")
-async def announce(interaction: discord.Interaction, mention_everyone : bool = False, server_notice : bool = False):
-    await interaction.response.send_modal(announce_embed(mention_everyone, server_notice))
+async def announce(interaction: discord.Interaction, mention_everyone : bool = False, hyperlink_title : bool = False):
+    await interaction.response.send_modal(announce_embed(mention_everyone, hyperlink_title))
     
 
 
