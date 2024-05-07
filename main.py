@@ -303,7 +303,7 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
 
     heading = ui.TextInput(label = 'Title', style = discord.TextStyle.short, required = True, placeholder = "", min_length=1, max_length=256)
     body = ui.TextInput(label = 'Main Body', style = discord.TextStyle.paragraph, required = True, placeholder = "", min_length=1, max_length=4000)
-    footer = ui.TextInput(label = 'Footer', style = discord.TextStyle.short, required = True, default="Visit our website at duobot.com", min_length=0, max_length=256)
+    footer = ui.TextInput(label = 'Footer', style = discord.TextStyle.short, required = False, default="Visit our website at duobot.com", min_length=0, max_length=256)
     image = ui.TextInput(label = 'Main Image', style = discord.TextStyle.short, required = False, placeholder = "Large image at bottom")
     thumbnail = ui.TextInput(label = 'Thumbnail', style = discord.TextStyle.short, required = False, placeholder = "Small image in TR corner")
     # colour = ui.TextInput(label = 'Colour Hex', style = discord.TextStyle.short, required = True, default="38b6ff")
