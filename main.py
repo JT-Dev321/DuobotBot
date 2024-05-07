@@ -332,7 +332,7 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
 
 @tree.command(guild = discord.Object(id=guild_id), name = 'announce', description='Send an announcement')
 @app_commands.checks.has_permissions(administrator=True)
-@app_commands.describe(server_notice="Adds extras to the embed, meant for server wide announcements.")
+@app_commands.describe(hyperlink_title="Adds extras to the embed, meant for server wide announcements.")
 async def announce(interaction: discord.Interaction, mention_everyone : bool = False, hyperlink_title : bool = False):
     await interaction.response.send_modal(announce_embed(mention_everyone, hyperlink_title))
     
