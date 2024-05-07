@@ -312,7 +312,7 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
         desc = self.body.value
         
         if self.server_notice:
-            embed = discord.Embed(title=self.heading.value, description=desc, url="https://duobot.com/p/deepforce", colour=maincolour, timestamp=datetime.datetime.now())
+            embed = discord.Embed(title=self.heading.value, description=desc, url="https://duobot.com/p/deepforce", colour=maincolour)
             embed.set_footer(text = "Visit our website at duobot.com")
         else:
             embed = discord.Embed(title=self.heading.value, description=desc, colour=maincolour)
