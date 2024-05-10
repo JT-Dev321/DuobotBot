@@ -362,7 +362,7 @@ async def on_message(message : discord.Message):
     cont = message.content.lower()
     if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
         await message.delete()
-    if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats:
+    if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats and not hasRole(message.author, staffroleid):
             
         # autoresponses
         """ 

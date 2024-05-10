@@ -24,50 +24,40 @@ maincolour = 0x3A739C
 
 
 autoSupportDictionary = {
-    "I don't find any tradable TF2 key(s) in your inventory to complete this request." : 
-    """
+    "I don't find any tradable TF2 key(s) in your inventory to complete this request." : """
 1. Ensure you're using !buytf and no other command
 2. Ensure you did not purchase the keys from the steam market within the last 7 days.
-    """,
-    "I don't find any tradable CSGO key(s) in your inventory to complete this request." : 
-    """
+""",
+    "I don't find any tradable CSGO key(s) in your inventory to complete this request." : """
 1. Ensure you're using !buy and no other command
 2. Ensure you did not purchase the keys from the steam market within the last 7 days.
 3. Ensure you did not trade the keys within the last 7 days.
-    """,
-    "I don't find any tradable HYDRA key(s) in your inventory to complete this request." : 
-    """
+""",
+    "I don't find any tradable HYDRA key(s) in your inventory to complete this request." : """
 1. Ensure you're using !buyhydra and no other command
 2. Ensure you did not purchase the keys from the steam market within the last 7 days.
 3. Ensure you did not trade the keys within the last 7 days.
-    """,
+""",
 
-    'An error occurred while...' : 
-    """
+    'An error occurred while...' : """
 Any error beginning like this is an issue with the delay between steam servers and our bots.
 
 **We cannot do anything on our end to solve this issue**, you must wait and try again later. Expect issues like this to clear up within <10 minutes. 
 If after that amount of time you are still experiencing the error, check: https://steamstat.us/""",
     
-    'There was an error loading your profile as it is private.' : 
-    """
+    'There was an error loading your profile as it is private.' : """
 Please ensure your privacy page looks like this when trading with the bot to avoid issues: https://i.imgur.com/mpO7Z09.png    
 
 If you are certain your profile is public and are still getting this error, then the error is caused by an issue with the delay between steam servers and our bots.
 
 **We cannot do anything on our end to solve this issue**, you must wait and try again later. Expect issues like this to clear up within <10 minutes. 
 If after that amount of time you are still experiencing the error, check: https://steamstat.us/""",
-
     
-    'Processing your request, please hold...' : 
-    """
-    
+    'Processing your request, please hold...' : """
 If you are sitting on this message from the bot, and nothing seems to be happening. There is an issue with steam communicating to our bot.
 
 **We cannot do anything on our end to solve this issue**, you must wait and try again later. Expect issues like this to clear up within <10 minutes. 
 If after that amount of time you are still experiencing the error, check: https://steamstat.us/"""
-
-
 }
 
 autoQuestionSupportDictionary = {
@@ -110,4 +100,5 @@ There are multiples reasons that this may occur:
 If you would like to request a refund, please open a {ticketchannelmention}
 """
 }
+
 
