@@ -362,80 +362,80 @@ async def on_message(message : discord.Message):
     cont = message.content.lower()
     if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
         await message.delete()
-    if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats and not hasRole(message.author, staffroleid):
+    # if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats and not hasRole(message.author, staffroleid):
             
-        # autoresponses
-        """ 
-        if message.channel.category.id == 570721296183197697 or message.channel.category.id == 657238193896423424:
-            for error in autoSupportDictionary.keys():
-                if error.replace(".", "").lower() in cont:
-                    await message.reply(f"{autoSupportDictionary[error]}")
-        """
+    #     # autoresponses
+    #     """ 
+    #     if message.channel.category.id == 570721296183197697 or message.channel.category.id == 657238193896423424:
+    #         for error in autoSupportDictionary.keys():
+    #             if error.replace(".", "").lower() in cont:
+    #                 await message.reply(f"{autoSupportDictionary[error]}")
+    #     """
 
-        rep = None
-        if cont[0] == '!':
-            rep = await message.reply("You should use these commands in DMs with the bot's on steam, not in the discord server.")
-        elif ("bot" in cont and "add" in cont and "me" in cont) or ("friend request" in cont):
-            rep = await message.reply(f"Please open a {ticketchannelmention} for us to manually add you on one of the bots, within the ticket provide:\n\n**1.** Your profile link\n**2.** The bot's profile link")
-        elif "specific" in cont and "set" in cont:
-            rep = await message.reply(f"We cannot sell you specific sets from our bots.")
-        elif "tradable" in cont or "tradeable" in cont:
-            rep = await message.reply(
-            f"""
-            Keys may not be tradeable for these reasons:
+    #     rep = None
+    #     if cont[0] == '!':
+    #         rep = await message.reply("You should use these commands in DMs with the bot's on steam, not in the discord server.")
+    #     elif ("bot" in cont and "add" in cont and "me" in cont) or ("friend request" in cont):
+    #         rep = await message.reply(f"Please open a {ticketchannelmention} for us to manually add you on one of the bots, within the ticket provide:\n\n**1.** Your profile link\n**2.** The bot's profile link")
+    #     elif "specific" in cont and "set" in cont:
+    #         rep = await message.reply(f"We cannot sell you specific sets from our bots.")
+    #     elif "tradable" in cont or "tradeable" in cont:
+    #         rep = await message.reply(
+    #         f"""
+    #         Keys may not be tradeable for these reasons:
 
-            CS:GO:
-            - They were purchased in-game (Never expires)
-            - They were bought from the steam marketplace (7 day wait)
-            - They were recently traded (7 day wait)
+    #         CS:GO:
+    #         - They were purchased in-game (Never expires)
+    #         - They were bought from the steam marketplace (7 day wait)
+    #         - They were recently traded (7 day wait)
 
-            TF2:
-            - They were bought from the steam marketplace (7 day wait)
+    #         TF2:
+    #         - They were bought from the steam marketplace (7 day wait)
 
-            Therefore, in order to minimise wait times. Buy TF2 keys from an external marketplace (which trades them to you). Such as:
-            **- https://marketplace.tf/items/tf2/5021;6**
-            **- https://cs.deals/market/tf2/Tool/?name=mann%20co.%20supply%20crate%20key&sort=price**
-            """)
-        elif "an error occurred" in cont:
-            rep = await message.reply(
-            f"""
-            EN: This is a Steam related issue, and there is nothing we can do in order to attempt to solve this issue. We encourage you to stop trying to use the bot for 15-20 minutes and try again after that.
+    #         Therefore, in order to minimise wait times. Buy TF2 keys from an external marketplace (which trades them to you). Such as:
+    #         **- https://marketplace.tf/items/tf2/5021;6**
+    #         **- https://cs.deals/market/tf2/Tool/?name=mann%20co.%20supply%20crate%20key&sort=price**
+    #         """)
+    #     elif "an error occurred" in cont:
+    #         rep = await message.reply(
+    #         f"""
+    #         EN: This is a Steam related issue, and there is nothing we can do in order to attempt to solve this issue. We encourage you to stop trying to use the bot for 15-20 minutes and try again after that.
 
-            PT: 
-            Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
-            """)
-        elif "there was an error loading your profile as it is private" in cont:
-            rep = await message.reply(
-            f"""
-            This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
-            """)
-        elif "crypto" in cont or "paypal" in cont or "bitcoin" in cont or "ethereum" in cont:
-            rep = await message.reply(
-            f"""
-            In order to pay via cash, rather than using keys, you must use [**our website**](https://duobot.com/p/deepforce) & deposit into your balance via your desired payment method. 
-            """)
+    #         PT: 
+    #         Este é um problema relacionado ao Steam e não há nada que possamos fazer para tentar resolvê-lo. Recomendamos que você pare de tentar usar o bot por 15 a 20 minutos e tente novamente depois disso.
+    #         """)
+    #     elif "there was an error loading your profile as it is private" in cont:
+    #         rep = await message.reply(
+    #         f"""
+    #         This is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.
+    #         """)
+    #     elif "crypto" in cont or "paypal" in cont or "bitcoin" in cont or "ethereum" in cont:
+    #         rep = await message.reply(
+    #         f"""
+    #         In order to pay via cash, rather than using keys, you must use [**our website**](https://duobot.com/p/deepforce) & deposit into your balance via your desired payment method. 
+    #         """)
             
         
         
-        # first time function
-        if message.channel.category.id == 570721296183197697 and not hasRole(message.author, staffroleid):
-            with open('supids.txt', 'r+') as f:
-                filecontent = f.read()
-                found = False
-                splitlist = filecontent.split(',')
-                for authorid in splitlist:
-                    if authorid == str(message.author.id):
-                        found = True
-                if not found:
-                    f.write(f"{message.author.id},")
-                    await message.reply(
-                        f"""
-                        ## Looks like it's your first time here {message.author.mention}, welcome!
+    #     # first time function
+    #     if message.channel.category.id == 570721296183197697 and not hasRole(message.author, staffroleid):
+    #         with open('supids.txt', 'r+') as f:
+    #             filecontent = f.read()
+    #             found = False
+    #             splitlist = filecontent.split(',')
+    #             for authorid in splitlist:
+    #                 if authorid == str(message.author.id):
+    #                     found = True
+    #             if not found:
+    #                 f.write(f"{message.author.id},")
+    #                 await message.reply(
+    #                     f"""
+    #                     ## Looks like it's your first time here {message.author.mention}, welcome!
                                             
-                        Be sure to check out {faqchannelmention} and {autosupchannelmention} for immediate support.
-                        Please feel free to open a ticket in {ticketchannelmention} with any further questions you have!
-                        """,
-                        delete_after=120)
+    #                     Be sure to check out {faqchannelmention} and {autosupchannelmention} for immediate support.
+    #                     Please feel free to open a ticket in {ticketchannelmention} with any further questions you have!
+    #                     """,
+    #                     delete_after=120)
 
 def insert_returns(body):
     if isinstance(body[-1], ast.Expr):
