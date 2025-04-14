@@ -88,7 +88,7 @@ class bot(commands.Bot):
     @tasks.loop(seconds=5)
     async def distribute_steam_level_role(self):
         print("running task")
-        async with aiosqlite.connect('/db/db.sqlite') as db:
+        async with aiosqlite.connect('../db/db.sqlite') as db:
             async with db.execute("SELECT discord_id, steam_level FROM users") as cursor:
                 async for row in cursor:
                     discord_id, steam_level = row
