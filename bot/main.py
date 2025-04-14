@@ -37,7 +37,7 @@ everyoneticketperm.use_application_commands = False
 guild_id = 434449451055185943
 guild_id_l = [434449451055185943]
 
-STEAM_LEVEL_OAUTH_URL = f"https://discord.com/api/oauth2/authorize?client_id={os.getenv("DISCORD_CLIENT_ID")}&redirect_uri=+ " + "http://localhost:5000/callback" + "&response_type=code&scope=identify%20connections"
+STEAM_LEVEL_OAUTH_URL = f"https://discord.com/api/oauth2/authorize?client_id={os.getenv("DISCORD_CLIENT_ID")}&redirect_uri= " + "http://localhost:5000/callback" + "&response_type=code&scope=identify%20connections"
 
 maincolour = 0x38b6ff
 
