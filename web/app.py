@@ -2,7 +2,10 @@ from flask import Flask, redirect, request, session, url_for
 import sqlite3
 import requests
 from datetime import datetime
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -88,7 +91,7 @@ def get_steam_level(steam_id):
     return r.json().get("response", {}).get("player_level", "Unknown")
 
 def save_user(discord_id, steam_id, steam_name, steam_level):
-    conn = sqlite3.connect('db/db.sqlite')
+    conn = sqlite3.connect('/home/deepforce/DuobotBot/db/db.sqlite')
     c = conn.cursor()
     
     c.execute('''

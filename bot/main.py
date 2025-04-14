@@ -87,16 +87,12 @@ class bot(commands.Bot):
     
     @tasks.loop(seconds=5)
     async def distribute_steam_level_role(self):
-        print("running task")
-        async with aiosqlite.connect('../db/db.sqlite') as db:
+        async with aiosqlite.connect('/home/deepforce/DuobotBot/db/db.sqlite') as db:
             async with db.execute("SELECT discord_id, steam_level FROM users") as cursor:
                 async for row in cursor:
                     discord_id, steam_level = row
-                    print(row)
                     guild = await self.fetch_guild(guild_id)
-                    print(guild)
                     member = await guild.fetch_member(int(discord_id))
-                    print(member)
                     if member:
                         role = get(guild.roles, id=LevelRoles.get_highest_role(steam_level))
                         if role and not hasRole(member, role):
