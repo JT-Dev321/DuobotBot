@@ -1,3 +1,4 @@
 /.env
 /requirements.txt
 /supids.txt
+/__pycache__/

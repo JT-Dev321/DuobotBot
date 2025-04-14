@@ -1,8 +1,9 @@
 import discord
 from discord import app_commands, ui
+from discord.ext import tasks, commands
 from discord.utils import get
+from discord.app_commands import AppCommandError, Group
 import datetime
-from discord.app_commands import Group
 from ids import *
 from dotenv import load_dotenv
 import os
@@ -11,6 +12,7 @@ import re
 import math
 import aiosqlite
 import ast
+import requests
 
 load_dotenv()
 
@@ -35,8 +37,18 @@ everyoneticketperm.use_application_commands = False
 guild_id = 434449451055185943
 guild_id_l = [434449451055185943]
 
+STEAM_LEVEL_OAUTH_URL = f"https://discord.com/api/oauth2/authorize?client_id={os.getenv("DISCORD_CLIENT_ID")}&redirect_uri=+ " + "http://localhost:5000/callback" + "&response_type=code&scope=identify%20connections"
+
 maincolour = 0x38b6ff
 
+class LevelRoles:
+    roles = {}
+    
+    @classmethod
+    def get_highest_role(cls, level : int):
+        for key in sorted(cls.roles.keys(), reverse=True):
+            if level >= key:
+                return cls.roles[key]
 
 def hasRole(member : discord.Member, roleID : int):
     roles = [r.id for r in member.roles]
@@ -45,11 +57,9 @@ def hasRole(member : discord.Member, roleID : int):
             return True
     return False
 
-
-class client(discord.Client):
+class bot(commands.Bot):
     def __init__(self):
-        super().__init__(intents=discord.Intents.all())
-        
+        super().__init__(intents=discord.Intents.all(), help_command=None, command_prefix="!!")
         self.synced = False
 
     async def setup_hook(self) -> None:
@@ -59,15 +69,41 @@ class client(discord.Client):
         self.add_view(ticketclosedview())
         self.add_view(ticketmenuview())
 
+        if not self.distribute_steam_level_role.is_running():
+            self.distribute_steam_level_role.start()
+        
+
     async def on_ready(self):
         await self.wait_until_ready()
         if not self.synced:
             await tree.sync(guild = discord.Object(id=guild_id))
             self.synced = True
-        print(f"We have logged in as {self.user}.")
+            
+        for role in self.get_guild(guild_id).roles:
+            if role.name.startswith("Level"):
+                LevelRoles.roles[int(role.name.split(" ")[1])] = role.id
         
-aclient = client()
-tree = app_commands.CommandTree(aclient)
+        print(f"We have logged in as {self.user}.")
+    
+    @tasks.loop(seconds=5)
+    async def distribute_steam_level_role(self):
+        print("running task")
+        async with aiosqlite.connect('db/db.sqlite') as db:
+            async with db.execute("SELECT discord_id, steam_level FROM users") as cursor:
+                async for row in cursor:
+                    discord_id, steam_level = row
+                    print(row)
+                    guild = await self.fetch_guild(guild_id)
+                    print(guild)
+                    member = await guild.fetch_member(int(discord_id))
+                    print(member)
+                    if member:
+                        role = get(guild.roles, id=LevelRoles.get_highest_role(steam_level))
+                        if role and not hasRole(member, role):
+                            await member.add_roles(role)
+        
+myBot = bot()
+tree = myBot.tree
 
     
 class AutoErrorSupportENG(discord.ui.Select):
@@ -117,6 +153,10 @@ class AutoQandRSupportENG(discord.ui.View):
 async def send_autosupp(interaction: discord.Interaction):
     await interaction.channel.send("**Please use the menus below for automatic support**", view=AutoQandRSupportENG())
 
+@tree.command(guild = discord.Object(id=guild_id), name = 'link_steam', description='Link your steam account')
+@app_commands.checks.has_permissions(administrator=True)
+async def link_steam(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Please follow the link below to link your steam account and get your role!\n## {STEAM_LEVEL_OAUTH_URL}", ephemeral=True)
 
 
 ticketgroup = Group(name = 'ticket', description='Manage tickets', guild_ids=guild_id_l)
@@ -337,32 +377,12 @@ async def announce(interaction: discord.Interaction, mention_everyone : bool = F
     await interaction.response.send_modal(announce_embed(mention_everyone, hyperlink_title))
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@aclient.event
+@myBot.event
 async def on_message(message : discord.Message):
     cont = message.content.lower()
     if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
         await message.delete()
-    # if message.author.id != aclient.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats and not hasRole(message.author, staffroleid):
+    # if message.author.id != myBot.user.id and len(message.content) > 1 and not message.author.bot and message.channel.category.id in auto_response_cats and not hasRole(message.author, staffroleid):
             
     #     # autoresponses
     #     """ 
@@ -463,7 +483,7 @@ async def eval_py(interaction : discord.Interaction, cmd : str, ephemeral : bool
         insert_returns(body)
 
         env = {
-            'bot': aclient,
+            'bot': myBot,
             'discord': discord,
             'interaction': interaction,
             '__import__': __import__
@@ -492,4 +512,4 @@ async def on_app_command_error(interaction : discord.Interaction, error : app_co
 
 
 
-aclient.run(f"{os.getenv('token')}")
+myBot.run(f"{os.getenv('token')}")
