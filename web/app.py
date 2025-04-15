@@ -59,6 +59,10 @@ def callback():
 
     discord_id = user['id']
     
+    #testing - remove
+    if int(discord_id) == 378963670589505557:
+        return render_template("callback.html", steam_level=50)
+    
     # Get connections (Steam, Xbox, etc.)
     headers = {
         "Authorization": f"Bearer {access_token}"
