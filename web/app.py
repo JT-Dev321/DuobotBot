@@ -23,7 +23,7 @@ def index():
     return "Go to your bot and use `!linksteam` to start."
 
 @app.route("/liz")
-def callback():
+def liz():
     return "Chuzz"
 
 @app.route("/callback")
