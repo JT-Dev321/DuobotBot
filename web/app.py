@@ -74,7 +74,7 @@ def callback():
         return "No Steam account linked."
 
     with sqlite3.connect('/home/deepforce/DuobotBot/db/db.sqlite') as db:
-        cursor = db.execute("SELECT last_updated FROM users WHERE discord_id = ? AND ", (discord_id,))
+        cursor = db.execute("SELECT last_updated FROM users WHERE discord_id = ?", (discord_id,))
         row = cursor.fetchone()
         
         if row:
