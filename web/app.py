@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)
 
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
-DISCORD_REDIRECT_URI = 'http://localhost:5000/callback'
+DISCORD_REDIRECT_URI = 'http://jt-dev.xyz/callback'
 STEAM_API_KEY = os.getenv("STEAM_API_KEY")
 
 DISCORD_API_BASE = "https://discord.com/api"
