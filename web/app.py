@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for
+from flask import Flask, redirect, request, session, url_for, render_template
 import sqlite3
 import requests
 from datetime import datetime, timedelta
@@ -91,7 +91,8 @@ def callback():
     steam_level = get_steam_level(steam_id)
     
     save_user(discord_id, steam_id, steam_name, steam_level)
-    return f"✅ {steam_name}'s Steam level is {steam_level} (SteamID: {steam_id})\n\nYou will be roled in the discord shortly."
+    return render_template("callback.html", steam_level=steam_level)
+    # return f"✅ {steam_name}'s Steam level is {steam_level} (SteamID: {steam_id})\n\nYou will be roled in the discord shortly."
 
 def get_steam_level(steam_id):
     url = "https://api.steampowered.com/IPlayerService/GetSteamLevel/v1/"

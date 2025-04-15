@@ -1,0 +1,19 @@
+.SiteTitle {
+  display: flex;
+  flex-direction: column;
+  margin: 1em auto;
+  font-family: "Poppins";
+  max-width: 70%;
+  justify-content: center;
+  font-size: 6em;
+  font-family: "Alfa Slab One", monospace;
+  color: white;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.SiteTitle #subtitle {
+  font-size: 0.5em;
+  letter-spacing: 0.03em;
+  color: #7C4CB9;
+}
