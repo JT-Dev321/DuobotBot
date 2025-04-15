@@ -2,6 +2,15 @@
   --primary-color: #38b6ff;
 }
 
+body {
+  background-image: url("/static/background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin: 0;
+  padding: 0;
+}
+  
 .SiteTitle {
   display: flex;
   flex-direction: column;
