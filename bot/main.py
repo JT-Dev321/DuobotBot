@@ -101,7 +101,12 @@ class bot(commands.Bot):
 myBot = bot()
 tree = myBot.tree
 
-    
+
+class LinkSteamView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(discord.ui.Button(label="Link your steam account", style=discord.ButtonStyle.link, url=STEAM_LEVEL_OAUTH_URL))
+
 class AutoErrorSupportENG(discord.ui.Select):
     def __init__(self):
         options = []
@@ -117,8 +122,6 @@ class AutoErrorSupportENGView(discord.ui.View):
         super().__init__(timeout=None)
 
         self.add_item(AutoErrorSupportENG())
-
-
 
 class AutoQuestionSupportENG(discord.ui.Select):
     def __init__(self):
