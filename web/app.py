@@ -69,6 +69,11 @@ def callback():
     if not steams:
         return "No Steam account linked."
 
+    with sqlite3.connect('/home/deepforce/DuobotBot/db/db.sqlite') as db:
+        cursor = db.execute("SELECT COUNT(*) FROM users WHERE discord_id = ?", (discord_id,))
+        if cursor.fetchone()[0] > 0:
+            return "You already have a Steam account linked."
+    
     steam = sorted(steams, key=lambda x: get_steam_level(x['id']))[-1]
     
     steam_id = steam['id']
