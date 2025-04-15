@@ -155,7 +155,7 @@ async def send_autosupp(interaction: discord.Interaction):
 @tree.command(guild = discord.Object(id=guild_id), name = 'link_steam', description='Link your steam account')
 @app_commands.checks.has_permissions(administrator=True)
 async def link_steam(interaction: discord.Interaction):
-    await interaction.response.send_message(f"Please follow the link below to link your steam account and get your role!\n## {STEAM_LEVEL_OAUTH_URL}", ephemeral=True)
+    await interaction.response.send_message(f"Please follow the link below to link your steam account and get your role!\n## {STEAM_LEVEL_OAUTH_URL}", view=LinkSteamView(), ephemeral=True)
 
 
 ticketgroup = Group(name = 'ticket', description='Manage tickets', guild_ids=guild_id_l)
