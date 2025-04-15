@@ -2,10 +2,15 @@
   --primary-color: #38b6ff;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   background-image: url("/static/background.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center bottom;
   background-repeat: no-repeat;
   margin: 0;
   padding: 0;
