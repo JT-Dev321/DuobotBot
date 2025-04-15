@@ -1,9 +1,18 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='DuobotAvatar.png') }}">
-
-<p class="SiteTitle">
-    Account successfully linked!
-    <span class="SiteSubtitle">
-        You will be given a role in our discord shortly! - Your steam level is {{ steam_level }}
-    </span>
-</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duobot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='DuobotAvatar.png') }}">
+</head>
+<body>
+    <p class="SiteTitle">
+        Account successfully linked!
+        <span class="SiteSubtitle">
+            You will be given a role in our discord shortly! - Your steam level is {{ steam_level }}
+        </span>
+    </p>
+</body>
+</html>
