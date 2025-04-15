@@ -85,7 +85,7 @@ class bot(commands.Bot):
         
         print(f"We have logged in as {self.user}.")
     
-    @tasks.loop(seconds=5)
+    @tasks.loop(seconds=15)
     async def distribute_steam_level_role(self):
         async with aiosqlite.connect('/home/deepforce/DuobotBot/db/db.sqlite') as db:
             async with db.execute("SELECT discord_id, steam_level FROM users") as cursor:
@@ -452,6 +452,14 @@ async def on_message(message : discord.Message):
     #                     Please feel free to open a ticket in {ticketchannelmention} with any further questions you have!
     #                     """,
     #                     delete_after=120)
+
+@myBot.event
+async def on_guild_role_update(guild : discord.Guild, before : discord.Role, after : discord.Role):
+    if after.name.startswith("Level"):
+        LevelRoles.roles.clear()
+        for role in guild.roles:
+            if role.name.startswith("Level"):
+                LevelRoles.roles[int(role.name.split(" ")[1])] = role.id
 
 def insert_returns(body):
     if isinstance(body[-1], ast.Expr):
