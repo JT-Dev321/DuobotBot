@@ -61,7 +61,7 @@ def callback():
     
     #testing - remove
     if int(discord_id) == 378963670589505557:
-        return render_template("callback.html", steam_level=50)
+        return render_template("callback.html", title="Account failed to link.", message="Your steam account was linked recently.\nYou can update your level once every 24 hours.")
     
     # Get connections (Steam, Xbox, etc.)
     headers = {
@@ -84,7 +84,7 @@ def callback():
         if row:
             last_updated = datetime.fromisoformat(row[0])
             if datetime.utcnow() - last_updated < timedelta(days=1):
-                return "Steam account already linked recently.\nYou can update your level once every 24 hours."
+                return render_template("callback.html", title="Account failed to link.", message="Your steam account was linked recently.\nYou can update your level once every 24 hours.")
     
     steam = sorted(steams, key=lambda x: get_steam_level(x['id']))[-1]
     
@@ -95,7 +95,7 @@ def callback():
     steam_level = get_steam_level(steam_id)
     
     save_user(discord_id, steam_id, steam_name, steam_level)
-    return render_template("callback.html", steam_level=steam_level)
+    return render_template("callback.html", title="Account successfully linked!", message=f"You will be given a role in our discord shortly!<br>Your steam level is {steam_level}")
     # return f"✅ {steam_name}'s Steam level is {steam_level} (SteamID: {steam_id})\n\nYou will be roled in the discord shortly."
 
 def get_steam_level(steam_id):

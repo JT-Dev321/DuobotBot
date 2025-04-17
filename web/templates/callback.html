@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Duobot</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='DuobotAvatar.png') }}">
+    <link rel="preload" as="image" href="{{ url_for('static', filename='background.jpg') }}">
+    <title>Duobot</title>
 </head>
 <body>
     <p class="SiteTitle">
-        Account successfully linked!
+        {{title}}
         <span class="SiteSubtitle">
-            You will be given a role in our discord shortly!<br>Your steam level is {{ steam_level }}
+            {{message}}
         </span>
     </p>
 </body>
