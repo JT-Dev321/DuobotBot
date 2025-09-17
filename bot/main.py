@@ -152,6 +152,12 @@ class AutoQandRSupportENG(discord.ui.View):
 async def send_autosupp(interaction: discord.Interaction):
     await interaction.channel.send("**Please use the menus below for automatic support**", view=AutoQandRSupportENG())
 
+@tree.command(guild = discord.Object(id=guild_id), name = 'website', description='Get a link to our website')
+@app_commands.checks.has_permissions(administrator=True)
+async def get_website(interaction: discord.Interaction, ephemeral : bool = False):
+    await interaction.response.send_message("[Click here to visit our website](https://duobot.com/p/deepforce)", ephemeral=ephemeral)
+
+
 @tree.command(guild = discord.Object(id=guild_id), name = 'link_steam', description='Link your steam account')
 @app_commands.checks.has_permissions(administrator=True)
 async def link_steam(interaction: discord.Interaction):
