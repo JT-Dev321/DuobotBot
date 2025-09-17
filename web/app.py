@@ -63,7 +63,7 @@ def callback():
     if int(discord_id) == 378963670589505557:
         return render_template("callback.html", title="Account failed to link.", message="Your steam account was linked recently.\nYou can update your level once every 24 hours.")
     
-    # Get connections (Steam, Xbox, etc.)
+    # Get connections
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
