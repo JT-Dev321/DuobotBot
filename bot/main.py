@@ -1,20 +1,27 @@
+from __future__ import annotations
+
+import ast
+import datetime
+import os
+import re
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
+import aiohttp
+import aiosqlite
 import discord
 from discord import app_commands, ui
-from discord.ext import tasks, commands
+from discord.app_commands import Group
+from discord.ext import commands, tasks
 from discord.utils import get
-from discord.app_commands import AppCommandError, Group
-import datetime
-from ids import *
 from dotenv import load_dotenv
-import os
-import asyncio
-import re
-import math
-import aiosqlite
-import ast
-import requests
 
-load_dotenv()
+from ids import *
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "db" / "db.sqlite"
+
+load_dotenv(BASE_DIR / ".env")
 
 
 defaultticketperm = discord.PermissionOverwrite()
@@ -37,9 +44,215 @@ everyoneticketperm.use_application_commands = False
 guild_id = 434449451055185943
 guild_id_l = [434449451055185943]
 
-STEAM_LEVEL_OAUTH_URL = f"https://discord.com/api/oauth2/authorize?client_id={os.getenv("DISCORD_CLIENT_ID")}&redirect_uri=" + "https://jt-dev.xyz/callback" + "&response_type=code&scope=identify%20connections"
+STEAM_LEVEL_OAUTH_URL = f"https://discord.com/api/oauth2/authorize?client_id={os.getenv('DISCORD_CLIENT_ID')}&redirect_uri=" + "https://jt-dev.xyz/callback" + "&response_type=code&scope=identify%20connections"
 
 maincolour = 0x38b6ff
+
+STEAM_STATUS_REFRESH_SECONDS = 60
+STEAM_API_BATCH_SIZE = 100
+
+
+def split_steam_identifiers(raw_ids: str) -> list[str]:
+    identifiers = [identifier.strip("<>") for identifier in re.split(r"[\s,;]+", raw_ids.strip()) if identifier]
+
+    if not identifiers:
+        raise ValueError("Please provide at least one SteamID64, Steam profile URL, or vanity name.")
+
+    return identifiers
+
+
+def steam_identifier_to_id_or_vanity(identifier: str) -> tuple[str, str]:
+    normalized = identifier.strip().strip("/")
+
+    if normalized.isdigit() and 15 <= len(normalized) <= 20:
+        return "steamid", normalized
+
+    url_candidate = normalized
+    if normalized.lower().startswith("steamcommunity.com/"):
+        url_candidate = f"https://{normalized}"
+
+    parsed_url = urlparse(url_candidate)
+    if parsed_url.netloc.lower().endswith("steamcommunity.com"):
+        path_parts = [unquote(part) for part in parsed_url.path.split("/") if part]
+
+        if len(path_parts) >= 2 and path_parts[0].lower() == "profiles":
+            steam_id = path_parts[1]
+            if steam_id.isdigit() and 15 <= len(steam_id) <= 20:
+                return "steamid", steam_id
+
+            raise ValueError(f"`{identifier}` does not contain a valid SteamID64.")
+
+        if len(path_parts) >= 2 and path_parts[0].lower() == "id":
+            return "vanity", path_parts[1]
+
+        raise ValueError(f"`{identifier}` is not a supported Steam profile URL.")
+
+    if re.fullmatch(r"[A-Za-z0-9_-]{2,64}", normalized):
+        return "vanity", normalized
+
+    raise ValueError(f"`{identifier}` is not a valid SteamID64, Steam profile URL, or vanity name.")
+
+
+async def resolve_steam_ids(raw_ids: str) -> list[str]:
+    api_key = os.getenv("STEAM_API_KEY")
+    if not api_key:
+        raise RuntimeError("Missing `STEAM_API_KEY` environment variable.")
+
+    steam_ids = []
+    seen = set()
+    vanity_names = []
+
+    for identifier in split_steam_identifiers(raw_ids):
+        identifier_type, value = steam_identifier_to_id_or_vanity(identifier)
+
+        if identifier_type == "steamid":
+            if value not in seen:
+                steam_ids.append(value)
+                seen.add(value)
+        else:
+            vanity_names.append(value)
+
+    if vanity_names:
+        timeout = aiohttp.ClientTimeout(total=15)
+
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            for vanity_name in vanity_names:
+                params = {
+                    "key": api_key,
+                    "vanityurl": vanity_name,
+                }
+
+                async with session.get("https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/", params=params) as response:
+                    response.raise_for_status()
+                    data = await response.json()
+
+                vanity_response = data.get("response", {})
+                if vanity_response.get("success") != 1:
+                    raise ValueError(f"Could not resolve Steam vanity name `{vanity_name}`.")
+
+                steam_id = vanity_response.get("steamid")
+                if steam_id and steam_id not in seen:
+                    steam_ids.append(steam_id)
+                    seen.add(steam_id)
+
+    if not steam_ids:
+        raise ValueError("No Steam accounts could be resolved from that input.")
+
+    return steam_ids
+
+
+def chunk_list(items: list[str], size: int):
+    for index in range(0, len(items), size):
+        yield items[index:index + size]
+
+
+def format_steam_display_name(name: str) -> str:
+    if name.startswith("! "):
+        name = name[2:]
+
+    if name.endswith(" Level Up"):
+        name = name[:-len(" Level Up")]
+
+    return name.strip()
+
+
+async def fetch_steam_players(steam_ids: list[str]) -> dict[str, dict]:
+    api_key = os.getenv("STEAM_API_KEY")
+    if not api_key:
+        raise RuntimeError("Missing `STEAM_API_KEY` environment variable.")
+
+    players = {}
+    timeout = aiohttp.ClientTimeout(total=15)
+
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        for batch in chunk_list(steam_ids, STEAM_API_BATCH_SIZE):
+            params = {
+                "key": api_key,
+                "steamids": ",".join(batch),
+            }
+
+            async with session.get("https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/", params=params) as response:
+                response.raise_for_status()
+                data = await response.json()
+
+            for player in data.get("response", {}).get("players", []):
+                players[player["steamid"]] = player
+
+    return players
+
+
+def build_steam_status_embed(steam_ids: list[str], players: dict[str, dict] | None = None, error: str | None = None) -> discord.Embed:
+    embed = discord.Embed(
+        title="Steam Account Status",
+        colour=maincolour,
+        timestamp=datetime.datetime.now(datetime.timezone.utc),
+    )
+
+    embed.set_footer(text=f"Refreshes every {STEAM_STATUS_REFRESH_SECONDS} seconds")
+
+    if error:
+        embed.description = f"Unable to refresh Steam status.\n\n{error}"
+        return embed
+
+    players = players or {}
+    counts = {"Online": 0, "Offline": 0, "Unknown": 0}
+    status_rows = []
+
+    for steam_id in steam_ids:
+        player = players.get(steam_id)
+
+        if player:
+            if player.get("personastate", 0) == 0:
+                state_name = "Offline"
+                marker = "🔴"
+            else:
+                state_name = "Online"
+                marker = "🟢"
+
+            name = format_steam_display_name(player.get("personaname", steam_id))
+            name = discord.utils.escape_markdown(name)
+            profile_url = player.get("profileurl", f"https://steamcommunity.com/profiles/{steam_id}")
+            line = f"{marker} [{name}]({profile_url}) `{steam_id}`"
+        else:
+            state_name = "Unknown"
+            line = f"`UNK` `{steam_id}` - Unknown"
+
+        counts[state_name] = counts.get(state_name, 0) + 1
+        status_rows.append((state_name == "Offline", state_name == "Unknown", line))
+
+    embed.description = (
+        f"Tracking `{len(steam_ids)}` Steam account{'s' if len(steam_ids) != 1 else ''}.\n"
+        f"Online: `{counts.get('Online', 0)}` | Offline: `{counts.get('Offline', 0)}`"
+    )
+
+    current_field = []
+    current_length = 0
+    shown_lines = 0
+
+    for _, _, line in sorted(status_rows):
+        if len(line) > 900:
+            line = line[:897] + "..."
+
+        if current_field and current_length + len(line) + 1 > 950:
+            embed.add_field(name="Accounts", value="\n".join(current_field), inline=False)
+            current_field = []
+            current_length = 0
+
+        if len(embed.fields) >= 24:
+            break
+
+        current_field.append(line)
+        current_length += len(line) + 1
+        shown_lines += 1
+
+    if current_field and len(embed.fields) < 25:
+        embed.add_field(name="Accounts", value="\n".join(current_field), inline=False)
+
+    hidden_count = len(status_rows) - shown_lines
+    if hidden_count > 0 and len(embed.fields) < 25:
+        embed.add_field(name="More", value=f"`{hidden_count}` more account statuses are tracked but not shown in this embed.", inline=False)
+
+    return embed
 
 class LevelRoles:
     roles = {}
@@ -61,6 +274,7 @@ class bot(commands.Bot):
     def __init__(self):
         super().__init__(intents=discord.Intents.all(), help_command=None, command_prefix="!!")
         self.synced = False
+        self.steam_status_messages = {}
 
     async def setup_hook(self) -> None:
         self.add_view(AutoErrorSupportENGView())
@@ -71,7 +285,9 @@ class bot(commands.Bot):
 
         if not self.distribute_steam_level_role.is_running():
             self.distribute_steam_level_role.start()
-        
+
+        if not self.update_steam_status_embeds.is_running():
+            self.update_steam_status_embeds.start()
 
     async def on_ready(self):
         await self.wait_until_ready()
@@ -87,7 +303,7 @@ class bot(commands.Bot):
     
     @tasks.loop(seconds=15)
     async def distribute_steam_level_role(self):
-        async with aiosqlite.connect('/home/deepforce/DuobotBot/db/db.sqlite') as db:
+        async with aiosqlite.connect(DB_PATH) as db:
             async with db.execute("SELECT discord_id, steam_level FROM users") as cursor:
                 async for row in cursor:
                     discord_id, steam_level = row
@@ -97,6 +313,46 @@ class bot(commands.Bot):
                         role = get(guild.roles, id=LevelRoles.get_highest_role(steam_level))
                         if role and not hasRole(member, role):
                             await member.add_roles(role)
+
+    @tasks.loop(seconds=STEAM_STATUS_REFRESH_SECONDS)
+    async def update_steam_status_embeds(self):
+        if not self.steam_status_messages:
+            return
+
+        tracked_messages = list(self.steam_status_messages.items())
+
+        for message_id, status_message in tracked_messages:
+            channel = self.get_channel(status_message["channel_id"])
+
+            if not channel:
+                try:
+                    channel = await self.fetch_channel(status_message["channel_id"])
+                except discord.DiscordException:
+                    self.steam_status_messages.pop(message_id, None)
+                    continue
+
+            message = None
+            try:
+                message = await channel.fetch_message(message_id)
+                steam_ids = status_message["steam_ids"]
+                players = await fetch_steam_players(steam_ids)
+                embed = build_steam_status_embed(steam_ids, players)
+                await message.edit(embed=embed)
+            except discord.NotFound:
+                self.steam_status_messages.pop(message_id, None)
+            except Exception as error:
+                if not message:
+                    continue
+
+                embed = build_steam_status_embed(status_message["steam_ids"], error=str(error))
+                try:
+                    await message.edit(embed=embed)
+                except Exception:
+                    pass
+
+    @update_steam_status_embeds.before_loop
+    async def before_update_steam_status_embeds(self):
+        await self.wait_until_ready()
         
 myBot = bot()
 tree = myBot.tree
@@ -162,6 +418,106 @@ async def get_website(interaction: discord.Interaction, ephemeral : bool = False
 @app_commands.checks.has_permissions(administrator=True)
 async def link_steam(interaction: discord.Interaction):
     await interaction.response.send_message(f"Please follow the link below to link your steam account and get your role!\n## {STEAM_LEVEL_OAUTH_URL}", view=LinkSteamView(), ephemeral=True)
+
+
+@tree.command(guild=discord.Object(id=guild_id), name='steam_status', description='Send a live Steam account status embed')
+@app_commands.checks.has_permissions(administrator=True)
+@app_commands.describe(steam_ids="SteamID64s, Steam profile URLs, or vanity names separated by commas, spaces, or new lines.")
+async def steam_status(interaction: discord.Interaction, steam_ids: str):
+    await interaction.response.defer(ephemeral=True)
+
+    try:
+        parsed_ids = await resolve_steam_ids(steam_ids)
+    except (ValueError, RuntimeError, aiohttp.ClientError) as error:
+        await interaction.followup.send(str(error), ephemeral=True)
+        return
+
+    try:
+        players = await fetch_steam_players(parsed_ids)
+        embed = build_steam_status_embed(parsed_ids, players)
+    except Exception as error:
+        embed = build_steam_status_embed(parsed_ids, error=str(error))
+
+    message = await interaction.channel.send(embed=embed)
+    myBot.steam_status_messages[message.id] = {
+        "channel_id": interaction.channel.id,
+        "steam_ids": parsed_ids,
+    }
+
+    await interaction.followup.send(f"Created live Steam status embed `{message.id}`.", ephemeral=True)
+
+
+@tree.command(guild=discord.Object(id=guild_id), name='steam_status_update', description='Update the SteamID list for a live Steam status embed')
+@app_commands.checks.has_permissions(administrator=True)
+@app_commands.describe(
+    message_id="The message ID of the live Steam status embed.",
+    steam_ids="Replacement SteamID64s, Steam profile URLs, or vanity names separated by commas, spaces, or new lines.",
+)
+async def steam_status_update(interaction: discord.Interaction, message_id: str, steam_ids: str):
+    await interaction.response.defer(ephemeral=True)
+
+    try:
+        parsed_message_id = int(message_id)
+    except ValueError as error:
+        await interaction.followup.send("Please provide a valid Discord message ID.", ephemeral=True)
+        return
+
+    try:
+        parsed_ids = await resolve_steam_ids(steam_ids)
+    except ValueError as error:
+        await interaction.followup.send(str(error), ephemeral=True)
+        return
+    except (RuntimeError, aiohttp.ClientError) as error:
+        await interaction.followup.send(str(error), ephemeral=True)
+        return
+
+    try:
+        message = await interaction.channel.fetch_message(parsed_message_id)
+    except discord.NotFound:
+        await interaction.followup.send("I could not find that message in this channel.", ephemeral=True)
+        return
+
+    myBot.steam_status_messages[parsed_message_id] = {
+        "channel_id": interaction.channel.id,
+        "steam_ids": parsed_ids,
+    }
+
+    try:
+        players = await fetch_steam_players(parsed_ids)
+        embed = build_steam_status_embed(parsed_ids, players)
+    except Exception as error:
+        embed = build_steam_status_embed(parsed_ids, error=str(error))
+
+    try:
+        await message.edit(embed=embed)
+    except discord.Forbidden:
+        myBot.steam_status_messages.pop(parsed_message_id, None)
+        await interaction.followup.send("I do not have permission to edit that message.", ephemeral=True)
+        return
+    except discord.HTTPException as error:
+        myBot.steam_status_messages.pop(parsed_message_id, None)
+        await interaction.followup.send(f"Discord rejected the embed update: `{error}`", ephemeral=True)
+        return
+
+    await interaction.followup.send(f"Updated live Steam status embed `{parsed_message_id}`.", ephemeral=True)
+
+
+@tree.command(guild=discord.Object(id=guild_id), name='steam_status_stop', description='Stop refreshing a live Steam status embed')
+@app_commands.checks.has_permissions(administrator=True)
+@app_commands.describe(message_id="The message ID of the live Steam status embed.")
+async def steam_status_stop(interaction: discord.Interaction, message_id: str):
+    try:
+        parsed_message_id = int(message_id)
+    except ValueError:
+        await interaction.response.send_message("Please provide a valid Discord message ID.", ephemeral=True)
+        return
+
+    removed = myBot.steam_status_messages.pop(parsed_message_id, None)
+
+    if removed:
+        await interaction.response.send_message(f"Stopped refreshing Steam status embed `{parsed_message_id}`.", ephemeral=True)
+    else:
+        await interaction.response.send_message("That message is not currently being refreshed by this bot process.", ephemeral=True)
 
 
 ticketgroup = Group(name = 'ticket', description='Manage tickets', guild_ids=guild_id_l)
