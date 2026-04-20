@@ -2,4 +2,6 @@
 /requirements.txt
 /supids.txt
 /__pycache__/
+__pycache__/
+*.py[cod]
 /db/
