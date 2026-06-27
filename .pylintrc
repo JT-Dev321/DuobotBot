@@ -4,7 +4,6 @@ disable =
     C0303,  # trailing-whitespace
     C0305,  # trailing-newlines
     C0321,  # multiple-statements
-    C0326,  # bad-whitespace (removed in pylint 2.6+, harmless if listed)
     C0114,  # missing-module-docstring
     C0115,  # missing-class-docstring
     C0116,  # missing-function-docstring
