@@ -32,4 +32,3 @@ jobs:
             source ~/.profile
             cd ${{ secrets.SSH_DIRECTORY_PATH }}
             pm2 restart duobotbot
-            pm2 restart flask_app
