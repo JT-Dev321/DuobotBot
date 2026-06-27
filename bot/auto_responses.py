@@ -6,6 +6,8 @@ from ids import botguidemention, ticketchannelmention
 
 log = logging.getLogger("duobot.auto_responses")
 
+SITE_LINK = "[Our Website](https://duobot.com/p/deepforce)"
+WHICH_BOT_CHANNEL_LINK = "<#1165717673322221649>"
 
 # Each entry is matched by checking every keyword against the user's message using
 # fuzz.partial_ratio — which scores how well the keyword fits as a substring of the
@@ -16,7 +18,7 @@ AUTO_RESPONSES: list[dict] = [
         "id": "bot_command_in_server",
         "keywords": ["!buy", "!buytf", "!buyhydra", "!add", "!info", "!check", "!level"],
         "match_threshold": 92,
-        "response": "PLACEHOLDER",
+        "response": "Please send our bots these commands on steam, not in the discord. ",
     },
     {
         "id": "add_bot_friend_request",
@@ -29,25 +31,25 @@ AUTO_RESPONSES: list[dict] = [
             "can the bot add me",
         ],
         "match_threshold": 75,
-        "response": f"PLACEHOLDER — open a {ticketchannelmention}",
+        "response": f"You can bypass the need to be added by using {SITE_LINK}",
     },
     {
         "id": "specific_sets",
         "keywords": ["specific set", "specific sets", "sell specific", "choose my sets"],
         "match_threshold": 80,
-        "response": "PLACEHOLDER",
+        "response": f"You can buy specific sets of cards on {SITE_LINK}",
     },
     {
         "id": "tradable_keys",
-        "keywords": ["tradable", "tradeable", "not tradable", "keys not tradable", "untradable"],
+        "keywords": ["which keys", "what keys", "keys not tradable", "key list"],
         "match_threshold": 82,
-        "response": "PLACEHOLDER",
+        "response": "https://pastebin.com/5cxyRMTb",
     },
     {
         "id": "steam_error_occurred",
         "keywords": ["an error occurred", "error occurred while"],
         "match_threshold": 82,
-        "response": "PLACEHOLDER",
+        "response": "This is likely a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.",
     },
     {
         "id": "profile_private",
@@ -58,60 +60,19 @@ AUTO_RESPONSES: list[dict] = [
             "loading your profile",
         ],
         "match_threshold": 80,
-        "response": "PLACEHOLDER",
-    },
-    {
-        "id": "processing_hold",
-        "keywords": [
-            "processing your request, please hold",
-            "stuck on processing",
-            "please hold",
-            "stuck on please hold",
-        ],
-        "match_threshold": 78,
-        "response": "PLACEHOLDER",
-    },
-    {
-        "id": "no_tradable_tf2_keys",
-        "keywords": [
-            "don't find any tradable tf2",
-            "i don't find any tradable tf2",
-            "no tradable tf2 key",
-        ],
-        "match_threshold": 78,
-        "response": "PLACEHOLDER",
-    },
-    {
-        "id": "no_tradable_csgo_keys",
-        "keywords": [
-            "don't find any tradable csgo",
-            "i don't find any tradable csgo",
-            "no tradable csgo key",
-        ],
-        "match_threshold": 78,
-        "response": "PLACEHOLDER",
-    },
-    {
-        "id": "no_tradable_hydra_keys",
-        "keywords": [
-            "don't find any tradable hydra",
-            "i don't find any tradable hydra",
-            "no tradable hydra key",
-        ],
-        "match_threshold": 78,
-        "response": "PLACEHOLDER",
+        "response": "If you are certain your entire profile is not private, this is a case of the steam servers being slow to communicate with the bot, meaning it cannot operate. Please try again in around 10 minutes. - We cannot fix this.",
     },
     {
         "id": "crypto_payment",
         "keywords": ["crypto", "paypal", "bitcoin", "ethereum", "pay with cash", "cash payment"],
         "match_threshold": 90,
-        "response": "PLACEHOLDER",
+        "response": f"Our {SITE_LINK} has several deposit options available.",
     },
     {
         "id": "refund",
         "keywords": ["refund", "money back", "get my money back", "want a refund"],
         "match_threshold": 85,
-        "response": "PLACEHOLDER",
+        "response": f"We do not formally offer refunds, if you would like to make a request you can open a {ticketchannelmention}",
     },
     {
         "id": "less_sets_lower_level",
@@ -124,7 +85,7 @@ AUTO_RESPONSES: list[dict] = [
             "less levels than",
         ],
         "match_threshold": 78,
-        "response": f"PLACEHOLDER — open a {ticketchannelmention} if needed",
+        "response": "If you are using the site there can sometimes be rounding errors where you may get slightly the incorrect amount of XP.",
     },
     {
         "id": "which_bot_to_use",
@@ -138,7 +99,7 @@ AUTO_RESPONSES: list[dict] = [
             "which bot do i use",
         ],
         "match_threshold": 80,
-        "response": f"PLACEHOLDER — see {botguidemention}",
+        "response": f"See {botguidemention}",
     },
     {
         "id": "accepted_keys",
@@ -150,7 +111,7 @@ AUTO_RESPONSES: list[dict] = [
             "does the bot accept",
         ],
         "match_threshold": 80,
-        "response": "PLACEHOLDER — key list: https://pastebin.com/5cxyRMTb",
+        "response": "Key list: https://pastebin.com/5cxyRMTb",
     },
     {
         "id": "where_to_buy_keys",
@@ -163,7 +124,14 @@ AUTO_RESPONSES: list[dict] = [
             "buy csgo keys",
         ],
         "match_threshold": 78,
-        "response": "PLACEHOLDER",
+        "response": 
+            f"""
+            There are many ways of purchasing keys across a range of payment methods/gateways. The two sites we personally recommend are:
+            https://marketplace.tf/items/tf2/5021;6
+            https://cs.deals/new/market?game=tf2&sort=price&sort_desc=1&name=key&exact_match=0
+            
+            You can also use the site {SITE_LINK} to deposit balance directly.
+            """,
     },
 ]
 
