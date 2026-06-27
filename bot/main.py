@@ -739,6 +739,10 @@ async def announce(interaction: discord.Interaction, mention_everyone : bool = F
     await interaction.response.send_modal(announce_embed(mention_everyone, hyperlink_title))
     
 
+_auto_reply_cooldowns: dict[int, datetime.datetime] = {}
+AUTO_REPLY_COOLDOWN_SECONDS = 60
+
+
 @myBot.event
 async def on_message(message: discord.Message):
     cont = message.content.lower()
@@ -754,9 +758,17 @@ async def on_message(message: discord.Message):
         and message.channel.category.id in auto_response_cats
         and not hasRole(message.author, staffroleid)
     ):
-        match = find_auto_response(cont)
-        if match:
-            await message.reply(match["response"])
+        last_reply = _auto_reply_cooldowns.get(message.author.id)
+        on_cooldown = (
+            last_reply is not None
+            and (datetime.datetime.now() - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
+        )
+
+        if not on_cooldown:
+            match = find_auto_response(cont)
+            if match:
+                _auto_reply_cooldowns[message.author.id] = datetime.datetime.now()
+                await message.reply(match["response"])
 
 @myBot.event
 async def on_guild_role_update(guild : discord.Guild, before : discord.Role, after : discord.Role):
