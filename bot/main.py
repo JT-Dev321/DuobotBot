@@ -310,6 +310,50 @@ class bot(commands.Bot):
                 LevelRoles.roles[int(role.name.split(" ")[1])] = role.id
         
         print(f"We have logged in as {self.user}.")
+
+    async def on_message(self, message: discord.Message):
+        cont = message.content.lower()
+        print(f"[on_message] {message.author} in cat={getattr(message.channel.category, 'id', None)}: {message.content!r}", flush=True)
+        log.info("on_message fired | user=%s | cat=%s | content=%r", message.author, getattr(message.channel.category, "id", None), message.content)
+
+        if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
+            await message.delete()
+
+        if (
+            message.author.id != self.user.id
+            and len(message.content) > 1
+            and not message.author.bot
+            and message.channel.category is not None
+            and message.channel.category.id in auto_response_cats
+            and not hasRole(message.author, staffroleid)
+        ):
+            last_reply = _auto_reply_cooldowns.get(message.author.id)
+            on_cooldown = (
+                last_reply is not None
+                and (datetime.datetime.now() - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
+            )
+
+            if on_cooldown:
+                log.info(
+                    "COOLDOWN  user=%s (%d) | skipping auto-response",
+                    message.author.name, message.author.id,
+                )
+            else:
+                match = find_auto_response(cont)
+                if match:
+                    _auto_reply_cooldowns[message.author.id] = datetime.datetime.now()
+                    log.info(
+                        "REPLIED   user=%s (%d) | response=%s | message=%r",
+                        message.author.name, message.author.id, match["id"], message.content,
+                    )
+                    await message.reply(match["response"])
+                else:
+                    log.info(
+                        "NO MATCH  user=%s (%d) | message=%r",
+                        message.author.name, message.author.id, message.content,
+                    )
+
+        await self.process_commands(message)
     
     @tasks.loop(seconds=15)
     async def distribute_steam_level_role(self):
@@ -750,50 +794,6 @@ async def announce(interaction: discord.Interaction, mention_everyone : bool = F
 
 _auto_reply_cooldowns: dict[int, datetime.datetime] = {}
 AUTO_REPLY_COOLDOWN_SECONDS = 60
-
-
-@myBot.event
-async def on_message(message: discord.Message):
-    cont = message.content.lower()
-    print(f"[on_message] {message.author} in cat={getattr(message.channel.category, 'id', None)}: {message.content!r}", flush=True)
-    log.info("on_message fired | user=%s | cat=%s | content=%r", message.author, getattr(message.channel.category, "id", None), message.content)
-
-    if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
-        await message.delete()
-
-    if (
-        message.author.id != myBot.user.id
-        and len(message.content) > 1
-        and not message.author.bot
-        and message.channel.category is not None
-        and message.channel.category.id in auto_response_cats
-        and not hasRole(message.author, staffroleid)
-    ):
-        last_reply = _auto_reply_cooldowns.get(message.author.id)
-        on_cooldown = (
-            last_reply is not None
-            and (datetime.datetime.now() - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
-        )
-
-        if on_cooldown:
-            log.info(
-                "COOLDOWN  user=%s (%d) | skipping auto-response",
-                message.author.name, message.author.id,
-            )
-        else:
-            match = find_auto_response(cont)
-            if match:
-                _auto_reply_cooldowns[message.author.id] = datetime.datetime.now()
-                log.info(
-                    "REPLIED   user=%s (%d) | response=%s | message=%r",
-                    message.author.name, message.author.id, match["id"], message.content,
-                )
-                await message.reply(match["response"])
-            else:
-                log.info(
-                    "NO MATCH  user=%s (%d) | message=%r",
-                    message.author.name, message.author.id, message.content,
-                )
 
 @myBot.event
 async def on_guild_role_update(guild : discord.Guild, before : discord.Role, after : discord.Role):
