@@ -309,7 +309,11 @@ class bot(commands.Bot):
             if role.name.startswith("Level"):
                 LevelRoles.roles[int(role.name.split(" ")[1])] = role.id
         
-        print(f"We have logged in as {self.user}.")
+        print(f"We have logged in as {self.user}. [NEW]", flush=True)
+
+    def dispatch(self, event: str, /, *args, **kwargs):
+        print(f"[dispatch] {event}", flush=True)
+        super().dispatch(event, *args, **kwargs)
 
     async def on_socket_event_type(self, event_type: str) -> None:
         print(f"[gateway] {event_type}", flush=True)
