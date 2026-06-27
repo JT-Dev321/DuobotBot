@@ -626,6 +626,7 @@ class ticketpromptview(discord.ui.View):
             
     @discord.ui.button(label="⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Support Ticket⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀",style=discord.ButtonStyle.blurple, row=1, custom_id="Ticket_Open_BTN")
     async def ticketopenbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        print("Making a ticket")
         await ticketpromptview.ticketopen(self, interaction, button)
 
 class ticketclosedview(discord.ui.View):
