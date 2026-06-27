@@ -311,6 +311,10 @@ class bot(commands.Bot):
         
         print(f"We have logged in as {self.user}.")
 
+    async def on_socket_event_type(self, event_type: str) -> None:
+        if event_type == "MESSAGE_CREATE":
+            print(f"[gateway] MESSAGE_CREATE received", flush=True)
+
     async def on_message(self, message: discord.Message):
         cont = message.content.lower()
         print(f"[on_message] {message.author} in cat={getattr(message.channel.category, 'id', None)}: {message.content!r}", flush=True)
