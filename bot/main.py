@@ -25,11 +25,12 @@ DB_PATH = BASE_DIR / "db" / "db.sqlite"
 
 load_dotenv(BASE_DIR / ".env")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
-)
+))
+logging.basicConfig(level=logging.INFO, handlers=[_log_handler])
 log = logging.getLogger("duobot")
 
 
@@ -754,6 +755,8 @@ AUTO_REPLY_COOLDOWN_SECONDS = 60
 @myBot.event
 async def on_message(message: discord.Message):
     cont = message.content.lower()
+    print(f"[on_message] {message.author} in cat={getattr(message.channel.category, 'id', None)}: {message.content!r}", flush=True)
+    log.info("on_message fired | user=%s | cat=%s | content=%r", message.author, getattr(message.channel.category, "id", None), message.content)
 
     if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
         await message.delete()
