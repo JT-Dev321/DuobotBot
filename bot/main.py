@@ -309,19 +309,10 @@ class bot(commands.Bot):
             if role.name.startswith("Level"):
                 LevelRoles.roles[int(role.name.split(" ")[1])] = role.id
         
-        print(f"We have logged in as {self.user}. [NEW]", flush=True)
-
-    def dispatch(self, event: str, /, *args, **kwargs):
-        print(f"[dispatch] {event}", flush=True)
-        super().dispatch(event, *args, **kwargs)
-
-    async def on_socket_event_type(self, event_type: str) -> None:
-        print(f"[gateway] {event_type}", flush=True)
+        print(f"We have logged in as {self.user}.")
 
     async def on_message(self, message: discord.Message):
         cont = message.content.lower()
-        print(f"[on_message] {message.author} in cat={getattr(message.channel.category, 'id', None)}: {message.content!r}", flush=True)
-        log.info("on_message fired | user=%s | cat=%s | content=%r", message.author, getattr(message.channel.category, "id", None), message.content)
 
         if "discord.gg/" in cont and not hasRole(message.author, staffroleid):
             await message.delete()
