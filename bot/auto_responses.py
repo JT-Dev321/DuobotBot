@@ -34,6 +34,29 @@ AUTO_RESPONSES: list[dict] = [
         "response": f"You can bypass the need to be added by using {SITE_LINK}",
     },
     {
+        "id": "friend_list_fill",
+        "keywords": [
+            "friends list full",
+            "friend list full",
+            "friends list is full",
+            "friend list is full",
+            "clear friends",
+            "clear friends list",
+        ],
+        "match_threshold": 75,
+        "response": f"You can bypass the need to be added by using {SITE_LINK}",
+    },
+    {
+        "id": "fund_transfer",
+        "keywords": [
+            "transfer funds",
+            "for other account",
+            "to other account",
+        ],
+        "match_threshold": 75,
+        "response": f"On {SITE_LINK} the level up page has an option in the top right to buy on behalf of someone else. You can also use a support ticket on the site to request a balance transfer.",
+    },
+    {
         "id": "specific_sets",
         "keywords": ["specific set", "specific sets", "sell specific", "choose my sets"],
         "match_threshold": 80,
