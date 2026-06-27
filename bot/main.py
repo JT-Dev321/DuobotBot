@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import datetime
+import logging
 import os
 import re
 from pathlib import Path
@@ -23,6 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = BASE_DIR / "db" / "db.sqlite"
 
 load_dotenv(BASE_DIR / ".env")
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+log = logging.getLogger("duobot")
 
 
 defaultticketperm = discord.PermissionOverwrite()
@@ -764,11 +772,25 @@ async def on_message(message: discord.Message):
             and (datetime.datetime.now() - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
         )
 
-        if not on_cooldown:
+        if on_cooldown:
+            log.info(
+                "COOLDOWN  user=%s (%d) | skipping auto-response",
+                message.author.name, message.author.id,
+            )
+        else:
             match = find_auto_response(cont)
             if match:
                 _auto_reply_cooldowns[message.author.id] = datetime.datetime.now()
+                log.info(
+                    "REPLIED   user=%s (%d) | response=%s | message=%r",
+                    message.author.name, message.author.id, match["id"], message.content,
+                )
                 await message.reply(match["response"])
+            else:
+                log.info(
+                    "NO MATCH  user=%s (%d) | message=%r",
+                    message.author.name, message.author.id, message.content,
+                )
 
 @myBot.event
 async def on_guild_role_update(guild : discord.Guild, before : discord.Role, after : discord.Role):

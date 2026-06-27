@@ -1,6 +1,10 @@
+import logging
+
 from rapidfuzz import fuzz
 
 from ids import botguidemention, ticketchannelmention
+
+log = logging.getLogger("duobot.auto_responses")
 
 
 # Each entry is matched by checking every keyword against the user's message using
@@ -170,13 +174,21 @@ def find_auto_response(content: str) -> dict | None:
     best_entry = None
     best_score = 0
 
+    log.debug("Scoring message: %r", content)
+
     for entry in AUTO_RESPONSES:
         threshold = entry["match_threshold"]
         for keyword in entry["keywords"]:
             score = fuzz.partial_ratio(keyword.lower(), content)
+            log.debug("  [%s] keyword=%r score=%d threshold=%d", entry["id"], keyword, score, threshold)
             if score >= threshold and score > best_score:
                 best_score = score
                 best_entry = entry
-                break  # one keyword hit is enough; move to next entry
+                break
+
+    if best_entry:
+        log.debug("Best match: %s (score=%d)", best_entry["id"], best_score)
+    else:
+        log.debug("No match found")
 
     return best_entry
