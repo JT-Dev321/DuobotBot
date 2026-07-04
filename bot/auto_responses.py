@@ -58,7 +58,7 @@ AUTO_RESPONSES: list[dict] = [
     },
     {
         "id": "specific_sets",
-        "keywords": ["specific set", "specific sets", "sell specific", "choose my sets"],
+        "keywords": ["specific set", "specific sets", "specific card sets", "choose my sets"],
         "match_threshold": 80,
         "response": f"You can buy specific sets of cards on {SITE_LINK}",
     },
@@ -87,7 +87,7 @@ AUTO_RESPONSES: list[dict] = [
     },
     {
         "id": "crypto_payment",
-        "keywords": ["crypto", "paypal", "bitcoin", "ethereum", "pay with cash", "cash payment"],
+        "keywords": ["crypto", "paypal", "bitcoin", "ethereum", "pay with cash", "cash payment", "pixpay"],
         "match_threshold": 90,
         "response": f"Our {SITE_LINK} has several deposit options available.",
     },
