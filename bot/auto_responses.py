@@ -1,4 +1,5 @@
 import logging
+import re
 
 from rapidfuzz import fuzz
 
@@ -9,10 +10,11 @@ log = logging.getLogger("duobot.auto_responses")
 SITE_LINK = "[Our Website](https://duobot.com/p/deepforce)"
 WHICH_BOT_CHANNEL_LINK = "<#1165717673322221649>"
 
-# Each entry is matched by checking every keyword against the user's message using
-# fuzz.partial_ratio — which scores how well the keyword fits as a substring of the
-# message (handles typos and paraphrasing). The entry with the highest score above
-# its match_threshold wins.
+# Each entry is matched by sliding a window of words across the user's message and
+# scoring each window against the keyword with fuzz.ratio (handles typos and small
+# paraphrasing). The whole keyword has to be present in the message — a message that
+# only contains a fragment of it does not match. The entry with the highest score
+# above its match_threshold wins.
 AUTO_RESPONSES: list[dict] = [
     {
         "id": "bot_command_in_server",
@@ -50,8 +52,15 @@ AUTO_RESPONSES: list[dict] = [
         "id": "fund_transfer",
         "keywords": [
             "transfer funds",
+            "transfer balance",
+            "balance transfer",
+            "send balance to",
             "for other account",
             "to other account",
+            "for another account",
+            "to another account",
+            "buy for someone else",
+            "buy for my friend",
         ],
         "match_threshold": 75,
         "response": f"On {SITE_LINK} the level up page has an option in the top right to buy on behalf of someone else. You can also use a support ticket on the site to request a balance transfer.",
@@ -159,23 +168,58 @@ AUTO_RESPONSES: list[dict] = [
 ]
 
 
+_TOKEN_RE = re.compile(r"[!\w']+")
+
+
+def _tokenize(text: str) -> list[str]:
+    return _TOKEN_RE.findall(text.lower())
+
+
+def _score_keyword(keyword: str, words: list[str]) -> float:
+    """Score how well `keyword` appears in the already-tokenized message.
+
+    The keyword is compared against every window of message words that is roughly
+    the same length as the keyword itself, using fuzz.ratio on the whole window.
+    Unlike fuzz.partial_ratio this cannot report a perfect match when the message
+    only holds a fragment of the keyword (e.g. "account" vs "for other account"),
+    and it will not match a keyword hidden inside a longer word.
+    """
+    keyword_words = keyword.split()
+    n = len(keyword_words)
+    if not words or n == 0:
+        return 0.0
+
+    best = 0.0
+    # Allow the window to be one word shorter/longer than the keyword so filler
+    # words ("to my other account") and dropped words still match.
+    for size in sorted({max(1, n - 1), n, n + 1}):
+        if size > len(words):
+            continue
+        for i in range(len(words) - size + 1):
+            window = " ".join(words[i:i + size])
+            score = fuzz.ratio(keyword, window)
+            if score > best:
+                best = score
+    return best
+
+
 def find_auto_response(content: str) -> dict | None:
     """Return the highest-scoring AUTO_RESPONSES entry whose best keyword clears
     its match_threshold, or None if nothing matches."""
     best_entry = None
-    best_score = 0
+    best_score = 0.0
 
-    log.debug("Scoring message: %r", content)
+    words = _tokenize(content)
+    log.debug("Scoring message: %r -> %r", content, words)
 
     for entry in AUTO_RESPONSES:
         threshold = entry["match_threshold"]
         for keyword in entry["keywords"]:
-            score = fuzz.partial_ratio(keyword.lower(), content)
+            score = _score_keyword(keyword.lower(), words)
             log.debug("  [%s] keyword=%r score=%d threshold=%d", entry["id"], keyword, score, threshold)
             if score >= threshold and score > best_score:
                 best_score = score
                 best_entry = entry
-                break
 
     if best_entry:
         log.debug("Best match: %s (score=%d)", best_entry["id"], best_score)
