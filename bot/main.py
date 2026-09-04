@@ -325,10 +325,11 @@ class bot(commands.Bot):
             and message.channel.category.id in auto_response_cats
             and not hasRole(message.author, staffroleid)
         ):
+            now = datetime.datetime.now()
             last_reply = _auto_reply_cooldowns.get(message.author.id)
             on_cooldown = (
                 last_reply is not None
-                and (datetime.datetime.now() - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
+                and (now - last_reply).total_seconds() < AUTO_REPLY_COOLDOWN_SECONDS
             )
 
             if on_cooldown:
@@ -339,12 +340,25 @@ class bot(commands.Bot):
             else:
                 match = find_auto_response(cont)
                 if match:
-                    _auto_reply_cooldowns[message.author.id] = datetime.datetime.now()
-                    log.info(
-                        "REPLIED   user=%s (%d) | response=%s | message=%r",
-                        message.author.name, message.author.id, match["id"], message.content,
+                    last_seen = _auto_reply_entry_cooldowns.get((message.author.id, match["id"]))
+                    repeated = (
+                        last_seen is not None
+                        and (now - last_seen).total_seconds() < AUTO_REPLY_ENTRY_COOLDOWN_SECONDS
                     )
-                    await message.reply(match["response"])
+
+                    if repeated:
+                        log.info(
+                            "REPEAT    user=%s (%d) | response=%s | already sent recently, skipping",
+                            message.author.name, message.author.id, match["id"],
+                        )
+                    else:
+                        _auto_reply_cooldowns[message.author.id] = now
+                        _auto_reply_entry_cooldowns[(message.author.id, match["id"])] = now
+                        log.info(
+                            "REPLIED   user=%s (%d) | response=%s | message=%r",
+                            message.author.name, message.author.id, match["id"], message.content,
+                        )
+                        await message.reply(match["response"])
                 else:
                     log.info(
                         "NO MATCH  user=%s (%d) | message=%r",
@@ -791,8 +805,15 @@ async def announce(interaction: discord.Interaction, mention_everyone : bool = F
     await interaction.response.send_modal(announce_embed(mention_everyone, hyperlink_title))
     
 
+# Short floor between any two auto-responses to the same user, so one person cannot
+# pull a burst of different replies out of the bot in a few seconds.
 _auto_reply_cooldowns: dict[int, datetime.datetime] = {}
 AUTO_REPLY_COOLDOWN_SECONDS = 60
+
+# Long cooldown on repeating the *same* response to the same user, keyed on
+# (user id, response id) — they have already been told, no need to say it again.
+_auto_reply_entry_cooldowns: dict[tuple[int, str], datetime.datetime] = {}
+AUTO_REPLY_ENTRY_COOLDOWN_SECONDS = 60 * 60
 
 @myBot.event
 async def on_guild_role_update(guild : discord.Guild, before : discord.Role, after : discord.Role):
