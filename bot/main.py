@@ -17,7 +17,11 @@ from discord.ext import commands, tasks
 from discord.utils import get
 from dotenv import load_dotenv
 
-from auto_responses import find_auto_response
+from auto_responses import (
+    find_auto_response,
+    get_auto_response,
+    list_auto_responses,
+)
 from ids import *
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -324,6 +328,7 @@ class bot(commands.Bot):
             and message.channel.category is not None
             and message.channel.category.id in auto_response_cats
             and not hasRole(message.author, staffroleid)
+            and not hasRole(message.author, tickethandler)
         ):
             now = datetime.datetime.now()
             last_reply = _auto_reply_cooldowns.get(message.author.id)
@@ -797,6 +802,69 @@ class announce_embed(ui.Modal, title = 'Announcement embed'):
 
         except:
             await interaction.response.send_message("An error has occurred.", ephemeral=True)
+
+async def autoresp_autocomplete(
+    interaction: discord.Interaction, current: str
+) -> list[app_commands.Choice[str]]:
+    """Suggest auto-response entries, filtered by whatever the user has typed."""
+    current = current.lower()
+    choices = []
+    for response_id, label in list_auto_responses():
+        if current and current not in response_id.lower() and current not in label.lower():
+            continue
+        choices.append(app_commands.Choice(name=f"{label} ({response_id})", value=response_id))
+    # Discord only ever shows 25 suggestions.
+    return choices[:25]
+
+
+@tree.command(guild = discord.Object(id=guild_id), name = 'autoresp', description='Manually send one of the auto-responses')
+@app_commands.checks.has_any_role(tickethandler, staffroleid)
+@app_commands.describe(
+    title="The auto-response to send.",
+    reply_to="Message ID or link to reply to, so the response lands on the right message.",
+    ephemeral="Only show the response to you.",
+)
+@app_commands.autocomplete(title=autoresp_autocomplete)
+async def autoresp(
+    interaction: discord.Interaction,
+    title: str,
+    reply_to: str | None = None,
+    ephemeral: bool = False,
+):
+    entry = get_auto_response(title)
+    if entry is None:
+        available = ", ".join(f"`{response_id}`" for response_id, _ in list_auto_responses())
+        await interaction.response.send_message(
+            f"There is no auto-response called `{title}`. Available: {available}",
+            ephemeral=True,
+        )
+        return
+
+    target = None
+    if reply_to:
+        try:
+            # Accept either a raw message ID or a full message link.
+            parsed_id = int(reply_to.rstrip("/").split("/")[-1])
+            target = await interaction.channel.fetch_message(parsed_id)
+        except (ValueError, discord.HTTPException):
+            await interaction.response.send_message(
+                "Could not find that message in this channel.", ephemeral=True
+            )
+            return
+
+    log.info(
+        "MANUAL    user=%s (%d) | response=%s | channel=%s",
+        interaction.user.name, interaction.user.id, entry["id"], interaction.channel,
+    )
+
+    if target is not None:
+        await target.reply(entry["response"])
+        await interaction.response.send_message(
+            f"Sent `{entry['id']}`.", ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(entry["response"], ephemeral=ephemeral)
+
 
 @tree.command(guild = discord.Object(id=guild_id), name = 'announce', description='Send an announcement')
 @app_commands.checks.has_permissions(administrator=True)

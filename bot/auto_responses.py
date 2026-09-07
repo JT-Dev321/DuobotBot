@@ -227,3 +227,21 @@ def find_auto_response(content: str) -> dict | None:
         log.debug("No match found")
 
     return best_entry
+
+
+AUTO_RESPONSES_BY_ID: dict[str, dict] = {entry["id"]: entry for entry in AUTO_RESPONSES}
+
+
+def auto_response_label(response_id: str) -> str:
+    """Human readable name for an entry id, e.g. 'fund_transfer' -> 'Fund Transfer'."""
+    return response_id.replace("_", " ").title()
+
+
+def list_auto_responses() -> list[tuple[str, str]]:
+    """Every entry as (id, label), in the order they are defined."""
+    return [(entry["id"], auto_response_label(entry["id"])) for entry in AUTO_RESPONSES]
+
+
+def get_auto_response(response_id: str) -> dict | None:
+    """Look up a single entry by its id, or None if there is no such entry."""
+    return AUTO_RESPONSES_BY_ID.get(response_id)
