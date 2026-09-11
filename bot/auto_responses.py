@@ -75,7 +75,7 @@ AUTO_RESPONSES: list[dict] = [
         "id": "tradable_keys",
         "keywords": ["which keys", "what keys", "keys not tradable", "key list"],
         "match_threshold": 82,
-        "response": "https://pastebin.com/5cxyRMTb",
+        "response": "The keys the bot accepts can be found here: https://duobot.com/faq/what-are-the-accepted-keys and https://steamcommunity.com/market/listings/440/Mann%20Co.%20Supply%20Crate%20Key",
     },
     {
         "id": "steam_error_occurred",
